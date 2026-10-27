@@ -29,62 +29,101 @@ jobs:
             fi
           done
           if [[ "$missing" -ne 0 ]]; then
-            echo "Il manque des secrets : c'est normal si vous venez de créer votre dépôt."
-            echo "Créez les 4 secrets (voir README), puis relancez ce workflow (Actions → Run workflow)."
+            echo "Il manque des secrets : créez les 4 secrets indiqués dans le README."
             exit 1
           fi
           echo "Les 4 secrets sont bien présents ✅"
 
-      - name: Upload all files recursively (dirs auto-created by Files API)
+      - name: Upload files with retry on rate limits
         shell: bash
+        env:
+          PA_USERNAME: ${{ secrets.PA_USERNAME }}
+          PA_TOKEN: ${{ secrets.PA_TOKEN }}
+          PA_TARGET_DIR: ${{ secrets.PA_TARGET_DIR }}
         run: |
           set -euo pipefail
-          USER="${{ secrets.PA_USERNAME }}"
-          TOKEN="${{ secrets.PA_TOKEN }}"
-          TARGET_DIR="${{ secrets.PA_TARGET_DIR }}"
-          DOMAIN="${{ secrets.PA_WEBAPP_DOMAIN }}"
-
-          # Optional: set PA_HOST secret to "eu.pythonanywhere.com" if your account is on EU.
+          USER="$PA_USERNAME"
+          TOKEN="$PA_TOKEN"
+          TARGET_DIR="$PA_TARGET_DIR"
           HOST="${{ secrets.PA_HOST }}"
-          if [[ -z "${HOST}" ]]; then HOST="www.pythonanywhere.com"; fi
+          if [[ -z "$HOST" ]]; then HOST="www.pythonanywhere.com"; fi
 
-          echo "Using PythonAnywhere host: ${HOST}"
-          echo "Target directory: ${TARGET_DIR}"
+          upload_file() {
+            local file="$1"
+            local remote_path="$2"
+            local attempt=1
+            local max_attempts=5
+            local code
 
-          # Upload every file; remote directories are created automatically by the Files API.
+            while (( attempt <= max_attempts )); do
+              code=$(curl -sS -o /tmp/pa-response.txt -w "%{http_code}" -X POST \
+                -H "Authorization: Token ${TOKEN}" \
+                -F "content=@${file}" \
+                "https://${HOST}/api/v0/user/${USER}/files/path${remote_path}" || true)
+
+              if [[ "$code" =~ ^2 ]]; then
+                return 0
+              fi
+
+              if [[ "$code" == "429" || "$code" == "500" || "$code" == "502" || "$code" == "503" || "$code" == "504" ]]; then
+                echo "Réponse HTTP $code pour $remote_path. Nouvelle tentative $attempt/$max_attempts..."
+                sleep $((attempt * 5))
+                ((attempt++))
+              else
+                echo "::error::Échec de l'envoi de $remote_path (HTTP $code)."
+                cat /tmp/pa-response.txt
+                return 1
+              fi
+            done
+
+            echo "::error::Échec après $max_attempts tentatives pour $remote_path."
+            cat /tmp/pa-response.txt
+            return 1
+          }
+
+          echo "Cible du déploiement : ${TARGET_DIR}"
           while IFS= read -r -d '' file; do
             rel="${file#./}"
-
-            # Exclusions (adjust to taste)
             case "$rel" in
               .git/*|.github/*|.venv/*|__pycache__/*|node_modules/*) continue ;;
-              *.pyc|.DS_Store) continue ;;
-              # Les consignes de l'atelier n'ont pas besoin d'être sur le serveur
-              exercices/*|*.md) continue ;;
+              *.pyc|.DS_Store|*.md|exercices/*) continue ;;
             esac
-
-            remote_path="${TARGET_DIR}/${rel}"
-            echo " - ${rel} -> ${remote_path}"
-
-            curl -sS --fail -X POST \
-              -H "Authorization: Token ${TOKEN}" \
-              -F "content=@${file}" \
-              "https://${HOST}/api/v0/user/${USER}/files/path${remote_path}" \
-              >/dev/null
-
+            upload_file "$file" "${TARGET_DIR}/${rel}"
           done < <(
             find . \
               -type d \( -name .git -o -name .github -o -name .venv -o -name __pycache__ -o -name node_modules \) -prune -false \
-              -o -type f \
-                ! -name ".DS_Store" \
-                ! -name "*.pyc" \
-                -print0
+              -o -type f ! -name ".DS_Store" ! -name "*.pyc" -print0
           )
 
-          echo "Reloading webapp ${DOMAIN}..."
-          curl -sS --fail -X POST \
-            -H "Authorization: Token ${TOKEN}" \
-            "https://${HOST}/api/v0/user/${USER}/webapps/${DOMAIN}/reload/" \
-            >/dev/null
+      - name: Reload web app with retry
+        shell: bash
+        env:
+          PA_USERNAME: ${{ secrets.PA_USERNAME }}
+          PA_TOKEN: ${{ secrets.PA_TOKEN }}
+          PA_WEBAPP_DOMAIN: ${{ secrets.PA_WEBAPP_DOMAIN }}
+        run: |
+          set -euo pipefail
+          HOST="${{ secrets.PA_HOST }}"
+          if [[ -z "$HOST" ]]; then HOST="www.pythonanywhere.com"; fi
 
-          echo "Deployed. Try: https://${DOMAIN}/"
+          for attempt in 1 2 3 4 5; do
+            code=$(curl -sS -o /tmp/pa-reload.txt -w "%{http_code}" -X POST \
+              -H "Authorization: Token ${PA_TOKEN}" \
+              "https://${HOST}/api/v0/user/${PA_USERNAME}/webapps/${PA_WEBAPP_DOMAIN}/reload/" || true)
+            if [[ "$code" =~ ^2 ]]; then
+              echo "Déploiement terminé et application rechargée ✅"
+              exit 0
+            fi
+            if [[ "$code" == "429" || "$code" == "500" || "$code" == "502" || "$code" == "503" || "$code" == "504" ]]; then
+              echo "Réponse HTTP $code lors du rechargement. Nouvelle tentative $attempt/5..."
+              sleep $((attempt * 5))
+            else
+              echo "::error::Échec du rechargement (HTTP $code)."
+              cat /tmp/pa-reload.txt
+              exit 1
+            fi
+          done
+
+          echo "::error::Impossible de recharger l'application après 5 tentatives."
+          cat /tmp/pa-reload.txt
+          exit 1
