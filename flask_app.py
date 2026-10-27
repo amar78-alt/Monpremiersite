@@ -28,6 +28,10 @@ def accueil():
 def presentation():
     return "Je m'appelle Alle Amar et je suis étudiant en informatique."
 
+@app.get("/loisirs")
+def loisirs():
+    return "J'aime le sport, l'informatique et découvrir de nouvelles choses."
+
 # ---------------------------------------------------------------
 #  Ne pas modifier : utile seulement pour lancer le site
 #  sur votre propre ordinateur (python flask_app.py)
