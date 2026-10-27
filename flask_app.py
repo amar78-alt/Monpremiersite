@@ -8,7 +8,7 @@
 #  Les consignes sont dans le dossier "exercices/".
 # ---------------------------------------------------------------
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, abort
 
 app = Flask(__name__)
 
@@ -22,7 +22,7 @@ def accueil():
 
 
 # ---------------------------------------------------------------
-#  Ajoutez vos nouvelles routes ci-dessous 👇
+#  Routes ajoutées pendant les exercices
 # ---------------------------------------------------------------
 @app.get("/presentation")
 def presentation():
@@ -61,6 +61,35 @@ def salut():
         ville = request.args.get("ville", "nulle part")
 
     return f"Bonjour {prenom}, qui vient de {ville} ! (reçu en {request.method})"
+
+
+# Exercice 9 : redirection et codes de statut
+@app.get("/home")
+def home():
+    return redirect("/")
+
+
+@app.get("/secret")
+def secret():
+    abort(403)
+
+
+# Une page d'erreur 404 personnalisée
+@app.errorhandler(404)
+def page_introuvable(erreur):
+    return render_template("404.html"), 404
+
+
+# Exercice 10 : en-têtes envoyés par le navigateur
+@app.get("/moi")
+def moi():
+    return render_template(
+        "moi.html",
+        ip=request.headers.get("X-Real-IP", request.remote_addr),
+        navigateur=request.headers.get("User-Agent"),
+        langues=request.headers.get("Accept-Language"),
+        entetes=request.headers,
+    )
 
 
 # ---------------------------------------------------------------
