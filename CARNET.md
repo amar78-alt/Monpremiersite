@@ -70,15 +70,15 @@ Alle
 
 1. Quelle est la différence de rôle entre le HTML et le CSS ?
 
-   > _Ma réponse :_ 
+   > _Ma réponse : : Le HTML définit la structure du contenu de la page, comme les titres et les paragraphes. Le CSS définit son apparence, comme les couleurs, les polices et les marges.
 
 2. Pour afficher votre page `/presentation`, combien de fichiers le navigateur doit-il télécharger ? (Vous pourrez le vérifier à l'exercice suivant !)
 
-   > _Ma réponse :_ 
+   > _Ma réponse :Deux fichiers principaux : le document HTML et le fichier CSS style.css. 
 
 3. Pourquoi faut-il parfois faire **Ctrl + F5** pour voir les changements de CSS ?
 
-   > _Ma réponse :_ 
+   > _Ma réponse :Parce que le navigateur peut conserver une ancienne version du fichier CSS dans son cache. Ctrl + F5 force le rechargement de la page et de ses ressources. 
 
 ---
 
@@ -86,19 +86,19 @@ Alle
 
 1. Que signifie HTTP ? Qui envoie la **requête** et qui envoie la **réponse** ?
 
-   > _Ma réponse :_ 
+   > _Ma réponse : HTTP signifie HyperText Transfer Protocol. Le navigateur envoie la requête au serveur, et le serveur renvoie la réponse.
 
 2. Combien de requêtes votre page `/presentation` a-t-elle déclenchées ? Lesquelles ?
 
-   > _Ma réponse :_ 
+   > _Ma réponse :J'ai observé deux requêtes principales : le document HTML presentation et la feuille de style style.css.
 
 3. Que signifie le code `200` ? Et le code `404` de la favicon ?
 
-   > _Ma réponse :_ 
+   > _Ma réponse :Le code 200 signifie que la requête a réussi. Le code 404 signifie que la ressource demandée n'a pas été trouvée. Mon site renvoie 404 Not Found lorsque je demande /favicon.ico.
 
 4. Pourquoi les modifications faites dans l'onglet Éléments ne sont-elles pas visibles par les autres visiteurs ?
 
-   > _Ma réponse :_ 
+   > _Ma réponse :Parce que ces modifications sont temporaires et locales à mon navigateur. Elles ne changent pas les fichiers enregistrés sur le serveur.
 
 ---
 
