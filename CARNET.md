@@ -138,15 +138,15 @@ Alle
 
 1. Quelle est la différence entre une erreur `4xx` et une erreur `5xx` ? Qui est « fautif » dans chaque cas ?
 
-   > _Ma réponse :_
+   > _Ma réponse :_ Une erreur 4xx indique généralement un problème dans la demande du client, par exemple une page inexistante (404) ou un accès interdit (403). Une erreur 5xx indique un problème côté serveur, par exemple une panne ou une erreur interne (500).
 
 2. Comment fonctionne une redirection ? Qui fait la deuxième requête : le serveur ou le navigateur ?
 
-   > _Ma réponse :_
+   > _Ma réponse :_ Le serveur renvoie un code 3xx avec une en-tête `Location` qui indique la nouvelle adresse. Le navigateur lit cette adresse et effectue lui-même une deuxième requête.
 
 3. Donnez un exemple de situation où un vrai site utilise une redirection.
 
-   > _Ma réponse :_
+   > _Ma réponse :_ Un site peut rediriger automatiquement de `http://` vers `https://`, ou rediriger une ancienne adresse vers une nouvelle page.
 
 ---
 
@@ -154,19 +154,19 @@ Alle
 
 1. Citez trois informations que le serveur connaît sur vous, sans que vous ayez rien rempli.
 
-   > _Ma réponse :_
+   > _Ma réponse :_ Le serveur peut connaître l'adresse IP utilisée pour la connexion, le navigateur ou système déclaré dans l'en-tête `User-Agent`, et les langues préférées indiquées dans `Accept-Language`.
 
 2. À quoi peut servir l'en-tête `Accept-Language` pour un site comme Wikipédia ?
 
-   > _Ma réponse :_
+   > _Ma réponse :_ Il peut aider le site à proposer une langue adaptée aux préférences du navigateur, par exemple afficher une version française si le français est préféré.
 
 3. Dans l'Access log, retrouvez une requête qui a reçu un code `404`. Quelle page était demandée ?
 
-   > _Ma réponse :_
+   > _Ma réponse :_ Exemple à confirmer dans mon propre Access log : `/favicon.ico`, si cette requête apparaît avec le code 404. Je dois vérifier le journal PythonAnywhere pour noter la page réellement demandée.
 
 4. Après cet exercice, que pensez-vous de la notion de « navigation anonyme » ?
 
-   > _Ma réponse :_
+   > _Ma réponse :_ La navigation n'est pas totalement anonyme : le serveur reçoit certaines informations techniques et peut enregistrer les visites dans ses journaux. Le mode navigation privée n'efface pas les informations déjà reçues par le serveur.
 
 ---
 
