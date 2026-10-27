@@ -58,11 +58,11 @@ Alle
 
 1. Pourquoi est-ce une bonne idée de séparer le code Python et le HTML ? (Pensez à une équipe avec un développeur et un graphiste.)
 
-   > _Ma réponse :_ 
+   > _Ma réponse :Cela permet de mieux organiser le projet. Le développeur peut modifier le fonctionnement en Python, tandis que le graphiste peut modifier la présentation HTML sans toucher au code Python.
 
 2. Les `{{ prenom }}` sont-ils remplacés par le serveur ou par le navigateur ? Comment l'avez-vous vérifié ?
 
-   > _Ma réponse :_ 
+   > _Ma réponse : Les variables sont remplacées par le serveur grâce à Flask et au moteur de templates Jinja. Je l'ai vérifié avec Ctrl + U : le code source reçu par le navigateur contient les valeurs réelles, par exemple Amar Alle, et non les expressions {{ prenom }} et {{ nom }}.
 
 ---
 
