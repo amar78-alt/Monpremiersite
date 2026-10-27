@@ -20,6 +20,7 @@ app = Flask(__name__)
 def accueil():
     return render_template("accueil.html")
 
+
 # ---------------------------------------------------------------
 #  Ajoutez vos nouvelles routes ci-dessous 👇
 # ---------------------------------------------------------------
@@ -27,26 +28,35 @@ def accueil():
 def presentation():
     return render_template("presentation.html", prenom="Amar", nom="Alle")
 
+
 @app.get("/loisirs")
 def loisirs():
     return "J'aime le sport, l'informatique et découvrir de nouvelles choses."
+
+
 @app.get("/bonjour/<prenom>")
 def bonjour(prenom):
     return render_template("bonjour.html", prenom=prenom)
+
+
 @app.get("/calcul")
 def calcul():
     a = int(request.args.get("a", 0))
     b = int(request.args.get("b", 0))
     return f"{a} + {b} = {a + b}"
-    @app.get("/formulaire")
+
+
+@app.get("/formulaire")
 def formulaire():
     return render_template("formulaire.html")
+
+
 @app.get("/salut")
 def salut():
     prenom = request.args.get("prenom", "inconnu")
     ville = request.args.get("ville", "nulle part")
     return f"Bonjour {prenom}, qui vient de {ville} !"
-    
+
 
 # ---------------------------------------------------------------
 #  Ne pas modifier : utile seulement pour lancer le site
