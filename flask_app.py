@@ -32,7 +32,7 @@ def loisirs():
     return "J'aime le sport, l'informatique et découvrir de nouvelles choses."
 @app.get("/bonjour/<prenom>")
 def bonjour(prenom):
-    return f"<h1>Bonjour {prenom} !</h1>"
+    return render_template("bonjour.html", prenom=prenom)
 @app.get("/calcul")
 def calcul():
     a = int(request.args.get("a", 0))
